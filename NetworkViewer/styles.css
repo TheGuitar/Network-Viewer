@@ -1,0 +1,33 @@
+graph {
+
+}
+
+node {
+	size: 10px;
+	fill-color: black;
+	stroke-mode: plain;
+	text-color: white;
+}
+
+node .in {
+    size: 15px;
+	fill-color: cyan;
+	stroke-color: cyan;
+	text-color: black;
+}
+
+node .out {
+    size: 15px;
+	fill-color: orange;
+	stroke-color: orange;
+	text-color: black;
+}
+
+node:clicked {
+	fill-color: red;
+}
+
+edge .in {
+  fill-color: cyan;
+  stroke-color: cyan;
+}
