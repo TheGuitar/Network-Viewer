@@ -15,12 +15,15 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import org.knowm.xchart.*;
+import org.knowm.xchart.style.markers.*;
+
 public class GUI extends JFrame implements ActionListener{
 
     public JButton handw,painting,about,home,chooseFiles,train,test,clear,sample,export,load, applyChanges, matrixView, viewNetwork, showPart;
     public JTextArea startText;
     public JLabel header1,imagNN,accuracy,neuronLabel,layerLabel,afLabel,label1,label2,label3,label4, trainDataLabel, batchLabel, epochLabel, ratioLabel,freezeLabel,epochsTrained,testLoss,trainLoss,sampleOutput;
-    public JPanel drawPanel;
+    public JPanel drawPanel, chartPanel;
     public JSlider ratioSlider,freezeSlider,dataSlider;
     public Font stdFont,smallFont;
     public Graphics g;
@@ -29,10 +32,11 @@ public class GUI extends JFrame implements ActionListener{
     public JComboBox lrBox,afBox;
     public int eT = 0;
     public int oldFreezeRatio=0;
-
+    public XYSeries trainLossData, testLossData;
+    public XYChart chart;
     
     private ArrayList<Point> points;
-    private int tool = 1;
+    //private int tool = 1;
     private String currentScreen = "";
     private String prevScreen;
     int currentX, currentY, oldX, oldY;
@@ -144,22 +148,22 @@ public class GUI extends JFrame implements ActionListener{
         add(header1);
 
         sample = new JButton("XOR");
-        sample.setBounds(550,400,50,50);
+        sample.setBounds(550,300,50,50);
         sample.addActionListener(this);
         add(sample);
 
         sampleOutput = new JLabel("...");
-        sampleOutput.setBounds(650,400,200,50);
+        sampleOutput.setBounds(650,300,200,50);
         sampleOutput.setFont(stdFont);
         add(sampleOutput);
 
         sampleInput1 = new JTextField("");
-        sampleInput1.setBounds(500,400,50,50);
+        sampleInput1.setBounds(500,300,50,50);
         sampleInput1.setFont(stdFont);
         add(sampleInput1);
 
         sampleInput2 = new JTextField("");
-        sampleInput2.setBounds(600,400,50,50);
+        sampleInput2.setBounds(600,300,50,50);
         sampleInput2.setFont(stdFont);
         add(sampleInput2);
 
@@ -261,7 +265,7 @@ public class GUI extends JFrame implements ActionListener{
         afBox.setBounds(25,185,100,25);
         add(afBox);
         
-        applyChanges = new JButton("apply changes");
+        applyChanges = new JButton("create");
         applyChanges.setBounds(20,225,125,25);
         applyChanges.addActionListener(this);
         add(applyChanges);
@@ -338,6 +342,16 @@ public class GUI extends JFrame implements ActionListener{
         trainLoss.setFont(stdFont);
         add(trainLoss);
 
+        chart = new XYChartBuilder().width(600).height(400).title("Trend").xAxisTitle("Epochs").yAxisTitle("Loss").build();
+        trainLossData = chart.addSeries("train loss", new double[] { 0 }, new double[] {0});
+        trainLossData.setMarker(SeriesMarkers.NONE);
+        testLossData = chart.addSeries("test loss", new double[] { 0}, new double[] { 0});
+        testLossData.setMarker(SeriesMarkers.NONE);
+
+        chartPanel = new XChartPanel<XYChart>(chart);
+        chartPanel.setBounds(400,355,400,220);
+        add(chartPanel);
+
 
         points = new ArrayList<Point>();
         setVisible(true);
@@ -374,11 +388,14 @@ public class GUI extends JFrame implements ActionListener{
 
     public void demoScreen() {
         //System.out.println("\n"+ "\n"+ "\n");
-        currentNetwork = new Network(28*28,10,Integer.parseInt(lrField.getText()), Integer.parseInt(hlayerField1.getText()));
         prevScreen = currentScreen;
         currentScreen = "hand";
         lrBox.setSelectedIndex(3);
         afBox.setSelectedIndex(0);
+        applyChanges.doClick();
+        epochsTrained.setText("Epochs Trained: " + Integer.toString(currentNetwork.epochsTrained));
+        trainLoss.setText("Training loss: " + Double.toString(currentNetwork.avgCost));
+        testLoss.setText("Test loss: " + Double.toString(currentNetwork.errorRate));
         for (Component c : super.getContentPane().getComponents())
         {
         c.setVisible(false);
@@ -419,6 +436,11 @@ public class GUI extends JFrame implements ActionListener{
         epochsTrained.setVisible(true);
         trainLoss.setVisible(true);
         testLoss.setVisible(true);
+
+        chart.updateXYSeries("train loss", new double[] { 0 }, new double[] {0}, new double[] {0});
+        chart.updateXYSeries("test loss", new double[] { 0}, new double[] {0}, new double[] {0});
+        chartPanel.setBounds(400,300,400,275);
+        chartPanel.setVisible(true);
     }
 
        ///////////////////////////////////////////////////////////////////////////////////////
@@ -429,6 +451,10 @@ public class GUI extends JFrame implements ActionListener{
         currentScreen = "xor";
         lrBox.setSelectedIndex(0);
         afBox.setSelectedIndex(1);
+        applyChanges.doClick();
+        epochsTrained.setText("Epochs Trained: " + Integer.toString(currentNetwork.epochsTrained));
+        trainLoss.setText("Training loss: " + Double.toString(currentNetwork.avgCost));
+        testLoss.setText("Test loss: " + Double.toString(currentNetwork.errorRate));
         for (Component c : super.getContentPane().getComponents())
         {
         c.setVisible(false);
@@ -466,6 +492,11 @@ public class GUI extends JFrame implements ActionListener{
         sampleInput1.setVisible(true);
         sampleInput2.setVisible(true);
         sampleOutput.setVisible(true);
+
+        chart.updateXYSeries("train loss", new double[] { 0 }, new double[] {0}, new double[] {0});
+        chart.updateXYSeries("test loss", new double[] { 0}, new double[] {0}, new double[] {0});
+        chartPanel.setBounds(400,355,400,220);
+        chartPanel.setVisible(true);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -585,12 +616,10 @@ public class GUI extends JFrame implements ActionListener{
             for(int i=0;i<10;i++) {
                 NetworkViewer.viewWeights(currentNetwork.weights[1],i);
             }
-        }
+        } 
         if(e.getSource()==train) { //Training Button
-            //eT+=Integer.parseInt(epochField.getText());
 
             if(freezeSlider.getValue()!=oldFreezeRatio) {
-                //currentNetwork.clearFreeze();
                 oldFreezeRatio = freezeSlider.getValue();
                 if(freezeSlider.getValue() > 0) {
                     currentNetwork.frozen = true;
@@ -623,7 +652,12 @@ public class GUI extends JFrame implements ActionListener{
             eT = currentNetwork.epochsTrained;
             epochsTrained.setText("Epochs Trained: " + Integer.toString(eT));
             trainLoss.setText("Training loss: " + Double.toString(currentNetwork.avgCost));
-            System.out.println("Training done");
+            //System.out.println("Training done");
+
+
+            chart.updateXYSeries("train loss", currentNetwork.epochList, currentNetwork.trainLossTrend, currentNetwork.emptyList);
+            repaint();
+            
             
         }
         if(e.getSource()==test) {
@@ -648,6 +682,8 @@ public class GUI extends JFrame implements ActionListener{
                 default: homeScreen(); break;
             }
             testLoss.setText("Test loss: " + Double.toString(currentNetwork.errorRate));
+            chart.updateXYSeries("test loss", currentNetwork.epochList2, currentNetwork.testLossTrend, currentNetwork.emptyList2);
+            repaint();
         }
         if(e.getSource()==sample) {
             switch (currentScreen) {

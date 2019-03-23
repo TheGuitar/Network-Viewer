@@ -2,6 +2,7 @@ import org.ejml.simple.SimpleMatrix;
 import org.ejml.dense.row.CommonOps_DDRM;
 import java.lang.Math;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 public class Network {
 
@@ -18,6 +19,8 @@ public class Network {
     //public SimpleMatrix[][] weightGradient;
     public double[] cost;
     public int epochsTrained = 0;
+    //public ArrayList<double[]> testLossTrend;
+    public ArrayList<Double> trainLossTrend,epochList,emptyList,testLossTrend,epochList2,emptyList2;
     public boolean frozen;
 
     public Network(int inputLayerSize, int outputLayerSize, int hiddenAmount, int hiddenSize) {
@@ -55,6 +58,15 @@ public class Network {
 
         iniBias();
         iniWeights();
+        trainLossTrend = new ArrayList<Double>();
+        epochList = new ArrayList<Double>();
+        emptyList = new ArrayList<Double>();
+
+        testLossTrend = new ArrayList<Double>();
+        epochList2 = new ArrayList<Double>();
+        emptyList2 = new ArrayList<Double>();
+
+        
     }
 
     public Network(int inputLayerSize, int outputLayerSize, int[] hidden) {
@@ -95,6 +107,13 @@ public class Network {
 
         iniBias();
         iniWeights();
+        trainLossTrend = new ArrayList<Double>();
+        epochList = new ArrayList<Double>();
+        emptyList = new ArrayList<Double>();
+
+        testLossTrend = new ArrayList<Double>();
+        epochList2 = new ArrayList<Double>();
+        emptyList2 = new ArrayList<Double>();
     }
 
     public Network(int inputLayerSize, int outputLayerSize, int hiddenAmount, int hiddenSize, SimpleMatrix[] setWeights) {
@@ -133,6 +152,13 @@ public class Network {
 
         iniBias();
         //setWeights();
+        trainLossTrend = new ArrayList<Double>();
+        epochList = new ArrayList<Double>();
+        emptyList = new ArrayList<Double>();
+
+        testLossTrend = new ArrayList<Double>();
+        epochList2 = new ArrayList<Double>();
+        emptyList2 = new ArrayList<Double>();
     }
 
     public void iniWeights() {  //we initialize all weights 
@@ -212,6 +238,9 @@ public class Network {
             }*/
         }   
         //adjustWeights(weightGradient); //update after 1 epoch
+        trainLossTrend.add(avgCost);
+        epochList.add((double)epochsTrained);
+        emptyList.add(0.0);
     }
 
     public void adjust(SimpleMatrix[] wg) {
@@ -412,6 +441,10 @@ public class Network {
             errorRate += cost[n];
         }
         errorRate = errorRate/in.length;
+        
+        testLossTrend.add(errorRate);
+        epochList2.add((double)epochsTrained);
+        emptyList2.add(0.0);
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
     public void freezeWeights(double ratio) {

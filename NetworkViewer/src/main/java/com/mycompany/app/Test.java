@@ -1,6 +1,3 @@
-/*package mynetwork;
-
-import mynetwork.decoder.Decoder;*/
 import java.io.IOException;
 import org.ejml.simple.SimpleMatrix;
 
@@ -32,7 +29,7 @@ public class Test {
             
         }
         net.testNetwork(input,res);
-        System.out.println("Error rate of the Network: " + net.errorRate);
+        //System.out.println("Error rate of the Network: " + net.errorRate);
         for(int i=0;i<10;i++) {
         //NetworkViewer.viewWeights(net.weights[1],i);
         }
