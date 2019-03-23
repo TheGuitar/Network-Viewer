@@ -27,7 +27,6 @@ public class GUI extends JFrame implements ActionListener{
     public JFileChooser filech;
     public JTextField hlayerField1, hlayerField2, hlayerField3,lrField,dataField,epochField,sampleField,batchField,sampleInput1,sampleInput2;
     public JComboBox lrBox,afBox;
-    public GraphPanel gp;
     public int eT = 0;
     public int oldFreezeRatio=0;
 
@@ -198,13 +197,6 @@ public class GUI extends JFrame implements ActionListener{
         imagNN.setIcon(nnpic);
         imagNN.setBounds(0,0,800,400);
         add(imagNN);
-
-        drawPanel = new GPanel();
-        drawPanel.setBackground(Color.WHITE);
-        drawPanel.setBounds(25,75,250,250);
-        add(drawPanel);
-        //drawPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        drawPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
         ratioSlider = new JSlider(JSlider.HORIZONTAL,0,10000,10000);
         ratioSlider.setBounds(380,75,120,35);
